@@ -41,7 +41,10 @@ function main {
 
     cp ${sdir}/pkg/bin/linux_amd64/consul ${SCRIPT_DIR}/
 
+    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 268215509542.dkr.ecr.us-east-1.amazonaws.com
     docker build --no-cache -t dibs-consul ${SCRIPT_DIR}
+    docker tag dibs-consul:latest 268215509542.dkr.ecr.us-east-1.amazonaws.com/dibs-consul:latest
+    docker push 268215509542.dkr.ecr.us-east-1.amazonaws.com/dibs-consul:latest
 
     rm -rf ${SCRIPT_DIR}/consul
 
