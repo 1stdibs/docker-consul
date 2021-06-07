@@ -5,7 +5,7 @@ SCRIPT_DIR=$(pwd)
 
 function usage {
 cat <<-EOF
-Usage: ${SCRIPT_NAME}  <consul source directory>
+Usage: ${SCRIPT_NAME}  <consul source directory> [consul version number (optional)]
 
 Description:
    
@@ -31,6 +31,8 @@ fi
 function main {
     declare sdir="$1"
 
+    local version=${2:-"latest"}
+
     ${sdir}/build-support/scripts/dibs-build.sh
 
     if test $? -ne 0
@@ -41,7 +43,10 @@ function main {
 
     cp ${sdir}/pkg/bin/linux_amd64/consul ${SCRIPT_DIR}/
 
-    docker build --no-cache -t dibs-consul ${SCRIPT_DIR}
+    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 268215509542.dkr.ecr.us-east-1.amazonaws.com
+    docker build --no-cache -t dibs-consul:${version} ${SCRIPT_DIR}
+    docker tag dibs-consul:${version} 268215509542.dkr.ecr.us-east-1.amazonaws.com/dibs-consul:${version}
+    docker push 268215509542.dkr.ecr.us-east-1.amazonaws.com/dibs-consul:${version}
 
     rm -rf ${SCRIPT_DIR}/consul
 
